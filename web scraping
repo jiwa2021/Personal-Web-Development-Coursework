@@ -1,0 +1,35 @@
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+
+page = requests.get(input("Enter NWS URL: "))  #get('url')  # enter desired city, press go, and then collect the URL shown and paste it here
+soup = BeautifulSoup(page.content, 'html.parser')
+Find_week = soup.find(id='seven-day-forecast-body')         #find the 7 day forecast body
+
+items = Find_week.find_all(class_='tombstone-container')    #Inside the body is the information we need and its enclosed in the tombstone container class
+#with open("daysoftheweek.txt", "w") as f:                     #instead of printing the output on the console, it outputs the results to a file.
+    #print(items, file=f)
+
+#print(items[0].find(class_='period-name').get_text())  #the .get_text() allows us to just get the text as usual.
+#print(items[0].find(class_='short-desc').get_text())   #prints each day individually
+#print(items[0].find(class_='temp').get_text())
+
+#for loop below allows us to print all the information at once rather than one by one as shown above.
+period_names = [item.find(class_='period-name').get_text() for item in items]
+short_descriptions = [item.find(class_='short-desc').get_text() for item in items]
+Temperature = [item.find(class_='temp').get_text() for item in items]
+print(period_names)
+print(short_descriptions)
+print(Temperature)
+
+#below:turns the data above into a nicer table that can then be used for data analysis
+weather_stuff = pd.DataFrame(
+    {
+        'period': period_names,
+        'short_descriptions': short_descriptions,
+        'Temperature': Temperature
+    })
+
+print(weather_stuff)
+
+weather_stuff.to_csv('weather1.csv')
